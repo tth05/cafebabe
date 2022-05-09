@@ -1,9 +1,8 @@
 use std::ffi::OsStr;
-use std::fs::{read_dir, remove_file, File};
+use std::fs::{read_dir, File};
 use std::io;
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
 
 #[test]
 fn parse_success() {
@@ -15,8 +14,8 @@ fn parse_success() {
         file.read_to_end(&mut bytes).unwrap();
         match cafebabe::parse_class(&bytes) {
             Ok(_) => {
-                println!("[OK] {:?}", classfile);
-                remove_file(&classfile).unwrap();
+                // println!("[OK] {:?}", classfile);
+                // remove_file(&classfile).unwrap();
             }
             Err(e) => panic!("[FAIL]: {:?}\n{}", classfile, e),
         };
@@ -29,17 +28,6 @@ fn generate_classes() -> io::Result<Vec<PathBuf>> {
     base_dir.push("parse");
 
     println!("Running gen_classes.sh to generate class files...");
-    let mut script = base_dir.clone();
-    script.push("gen_classes.sh");
-    let status = Command::new(script)
-        .current_dir(&base_dir)
-        .stdout(Stdio::null())
-        .stdin(Stdio::null())
-        .status()
-        .expect("Failed to execute gen_classes.sh");
-    if !status.success() {
-        panic!("Exit code {:?} from gen_classes.sh", status.code());
-    }
 
     let mut classes = Vec::new();
     println!("Scanning for class files...");

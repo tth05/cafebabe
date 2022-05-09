@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::str::Chars;
 
 pub(crate) fn is_binary_name(name: &str) -> bool {

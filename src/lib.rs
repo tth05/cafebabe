@@ -14,7 +14,6 @@ pub mod constant_pool;
 pub mod names;
 
 use std::borrow::Cow;
-use std::collections::HashSet;
 use std::ops::Deref;
 use std::rc::Rc;
 
@@ -24,7 +23,6 @@ use crate::constant_pool::{
     ConstantPoolIter,
 };
 pub use crate::error::ParseError;
-use crate::names::{is_field_descriptor, is_method_descriptor, is_unqualified_name};
 
 pub(crate) fn read_u1(bytes: &[u8], ix: &mut usize) -> Result<u8, ParseError> {
     if bytes.len() < *ix + 1 {
@@ -147,17 +145,17 @@ fn read_fields<'a>(
 ) -> Result<Vec<FieldInfo<'a>>, ParseError> {
     let count = read_u2(bytes, ix)?;
     let mut fields = Vec::with_capacity(count.into());
-    let mut unique_ids: HashSet<(Cow<'a, str>, Cow<'a, str>)> = HashSet::new();
+    // let mut unique_ids: HashSet<(Cow<'a, str>, Cow<'a, str>)> = HashSet::new();
     for i in 0..count {
         let access_flags = FieldAccessFlags::from_bits_truncate(read_u2(bytes, ix)?);
         let name =
             read_cp_utf8(bytes, ix, pool).map_err(|e| err!(e, "name of class field {}", i))?;
-        if !is_unqualified_name(&name, false, false) {
+        /*if !is_unqualified_name(&name, false, false) {
             fail!("Invalid unqualified name for class field {}", i);
-        }
+        }*/
         let descriptor = read_cp_utf8(bytes, ix, pool)
             .map_err(|e| err!(e, "descriptor of class field {}", i))?;
-        if !is_field_descriptor(&descriptor) {
+        /*if !is_field_descriptor(&descriptor) {
             fail!("Invalid descriptor for class field {}", i);
         }
         let unique_id = (name.clone(), descriptor.clone());
@@ -166,7 +164,7 @@ fn read_fields<'a>(
                 "Class field {} is duplicate of previously-encountered field",
                 i
             );
-        }
+        }*/
         let attributes =
             read_attributes(bytes, ix, pool, opts).map_err(|e| err!(e, "class field {}", i))?;
         fields.push(FieldInfo {
@@ -209,23 +207,23 @@ fn read_methods<'a>(
     ix: &mut usize,
     pool: &[Rc<ConstantPoolEntry<'a>>],
     opts: &ParseOptions,
-    in_interface: bool,
-    major_version: u16,
+    _in_interface: bool,
+    _major_version: u16,
 ) -> Result<Vec<MethodInfo<'a>>, ParseError> {
     let count = read_u2(bytes, ix)?;
     let mut methods = Vec::with_capacity(count.into());
-    let mut unique_ids: HashSet<(Cow<'a, str>, Cow<'a, str>)> = HashSet::new();
+    // let mut unique_ids: HashSet<(Cow<'a, str>, Cow<'a, str>)> = HashSet::new();
     for i in 0..count {
         let access_flags = MethodAccessFlags::from_bits_truncate(read_u2(bytes, ix)?);
         let name =
             read_cp_utf8(bytes, ix, pool).map_err(|e| err!(e, "name of class method {}", i))?;
-        let allow_init = !in_interface;
+        /*let allow_init = !in_interface;
         if !is_unqualified_name(&name, allow_init, true) {
             fail!("Invalid unqualified name for class method {}", i);
-        }
+        }*/
         let descriptor = read_cp_utf8(bytes, ix, pool)
             .map_err(|e| err!(e, "descriptor of class method {}", i))?;
-        if !is_method_descriptor(&descriptor) {
+        /*if !is_method_descriptor(&descriptor) {
             fail!("Invalid descriptor for class method {}", i);
         }
         if allow_init && name == "<init>" && !descriptor.ends_with('V') {
@@ -245,7 +243,7 @@ fn read_methods<'a>(
                 "Class method {} is duplicate of previously-encountered method",
                 i
             );
-        }
+        }*/
         let attributes =
             read_attributes(bytes, ix, pool, opts).map_err(|e| err!(e, "class method {}", i))?;
         methods.push(MethodInfo {
@@ -272,6 +270,7 @@ bitflags! {
     }
 }
 
+#[allow(dead_code)]
 fn validate_bootstrap_methods<'a>(
     pool: &[Rc<ConstantPoolEntry<'a>>],
     attributes: &[AttributeInfo<'a>],
@@ -421,7 +420,7 @@ pub fn parse_class_with_options<'a>(
         }
     }
 
-    validate_bootstrap_methods(&constant_pool, &attributes)?;
+    // validate_bootstrap_methods(&constant_pool, &attributes)?;
 
     let class_file = ClassFile {
         major_version,

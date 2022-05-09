@@ -5,14 +5,13 @@ use std::rc::Rc;
 use crate::bytecode::ByteCode;
 use crate::constant_pool::{
     read_cp_bootstrap_argument, read_cp_classinfo, read_cp_classinfo_opt, read_cp_double,
-    read_cp_float, read_cp_integer, read_cp_literalconstant, read_cp_long, read_cp_methodhandle,
-    read_cp_moduleinfo, read_cp_nameandtype_opt, read_cp_packageinfo, read_cp_utf8,
-    read_cp_utf8_opt,
+    read_cp_float, read_cp_integer, read_cp_long, read_cp_methodhandle, read_cp_moduleinfo,
+    read_cp_nameandtype_opt, read_cp_packageinfo, read_cp_utf8, read_cp_utf8_opt,
 };
 use crate::constant_pool::{
     BootstrapArgument, ConstantPoolEntry, LiteralConstant, MethodHandle, NameAndType,
 };
-use crate::names::{is_field_descriptor, is_return_descriptor, is_unqualified_name};
+use crate::names::{is_field_descriptor, is_return_descriptor};
 use crate::{read_u1, read_u2, read_u4, AccessFlags, ParseError, ParseOptions};
 
 #[derive(Debug)]
@@ -412,6 +411,7 @@ fn read_code_data<'a>(
     })
 }
 
+#[allow(dead_code)]
 fn read_stackmaptable_verification<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -439,6 +439,7 @@ fn read_stackmaptable_verification<'a>(
     Ok(verification_type)
 }
 
+#[allow(dead_code)]
 fn read_stackmaptable_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -572,6 +573,7 @@ fn read_innerclasses_data<'a>(
     Ok(innerclasses)
 }
 
+#[allow(dead_code)]
 fn read_linenumber_data(bytes: &[u8], ix: &mut usize) -> Result<Vec<LineNumberEntry>, ParseError> {
     let count = read_u2(bytes, ix)?;
     let mut linenumbers = Vec::with_capacity(count.into());
@@ -586,6 +588,7 @@ fn read_linenumber_data(bytes: &[u8], ix: &mut usize) -> Result<Vec<LineNumberEn
     Ok(linenumbers)
 }
 
+#[allow(dead_code)]
 fn read_localvariable_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -597,14 +600,14 @@ fn read_localvariable_data<'a>(
         let start_pc = read_u2(bytes, ix)?;
         let length = read_u2(bytes, ix)?;
         let name = read_cp_utf8(bytes, ix, pool).map_err(|e| err!(e, "name for variable {}", i))?;
-        if !is_unqualified_name(&name, false, false) {
+        /*if !is_unqualified_name(&name, false, false) {
             fail!("Invalid unqualified name for variable {}", i);
-        }
+        }*/
         let descriptor =
             read_cp_utf8(bytes, ix, pool).map_err(|e| err!(e, "descriptor for variable {}", i))?;
-        if !is_field_descriptor(&descriptor) {
+        /*if !is_field_descriptor(&descriptor) {
             fail!("Invalid descriptor for variable {}", i);
-        }
+        }*/
         let index = read_u2(bytes, ix)?;
         localvariables.push(LocalVariableEntry {
             start_pc,
@@ -617,6 +620,7 @@ fn read_localvariable_data<'a>(
     Ok(localvariables)
 }
 
+#[allow(dead_code)]
 fn read_localvariabletype_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -628,9 +632,9 @@ fn read_localvariabletype_data<'a>(
         let start_pc = read_u2(bytes, ix)?;
         let length = read_u2(bytes, ix)?;
         let name = read_cp_utf8(bytes, ix, pool).map_err(|e| err!(e, "name for variable {}", i))?;
-        if !is_unqualified_name(&name, false, false) {
+        /*if !is_unqualified_name(&name, false, false) {
             fail!("Invalid unqualified name for variable {}", i);
-        }
+        }*/
         let signature =
             read_cp_utf8(bytes, ix, pool).map_err(|e| err!(e, "signature for variable {}", i))?;
         let index = read_u2(bytes, ix)?;
@@ -645,6 +649,7 @@ fn read_localvariabletype_data<'a>(
     Ok(localvariabletypes)
 }
 
+#[allow(dead_code)]
 fn read_annotation_element_value<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -695,6 +700,7 @@ fn read_annotation_element_value<'a>(
     Ok(value)
 }
 
+#[allow(dead_code)]
 fn read_annotation<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -719,6 +725,7 @@ fn read_annotation<'a>(
     })
 }
 
+#[allow(dead_code)]
 fn read_annotation_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -733,6 +740,7 @@ fn read_annotation_data<'a>(
     Ok(annotations)
 }
 
+#[allow(dead_code)]
 fn read_parameter_annotation_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -754,6 +762,7 @@ fn read_parameter_annotation_data<'a>(
     Ok(parameters)
 }
 
+#[allow(dead_code)]
 fn read_type_annotation_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -840,6 +849,7 @@ fn read_type_annotation_data<'a>(
     Ok(annotations)
 }
 
+#[allow(dead_code)]
 fn read_bootstrapmethods_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -862,6 +872,7 @@ fn read_bootstrapmethods_data<'a>(
     Ok(bootstrapmethods)
 }
 
+#[allow(dead_code)]
 fn read_methodparameters_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -872,9 +883,9 @@ fn read_methodparameters_data<'a>(
     for i in 0..count {
         let name = read_cp_utf8_opt(bytes, ix, pool)
             .map_err(|e| err!(e, "name of method parameter {}", i))?;
-        if name.is_some() && !is_unqualified_name(name.as_ref().unwrap(), false, false) {
+        /*if name.is_some() && !is_unqualified_name(name.as_ref().unwrap(), false, false) {
             fail!("Invalid unqualified name for variable {}", i);
-        }
+        }*/
         let access_flags = MethodParameterAccessFlags::from_bits(read_u2(bytes, ix)?)
             .ok_or_else(|| err!(("Invalid access flags found"), ("method parameter {}", i)))?;
         methodparameters.push(MethodParameterEntry { name, access_flags });
@@ -882,6 +893,7 @@ fn read_methodparameters_data<'a>(
     Ok(methodparameters)
 }
 
+#[allow(dead_code)]
 fn read_module_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -983,6 +995,7 @@ fn read_module_data<'a>(
     })
 }
 
+#[allow(dead_code)]
 fn read_modulepackages_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -997,6 +1010,7 @@ fn read_modulepackages_data<'a>(
     Ok(packages)
 }
 
+#[allow(dead_code)]
 fn read_nestmembers_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -1010,6 +1024,7 @@ fn read_nestmembers_data<'a>(
     Ok(members)
 }
 
+#[allow(dead_code)]
 fn read_record_data<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -1020,14 +1035,14 @@ fn read_record_data<'a>(
     let mut components = Vec::with_capacity(count.into());
     for i in 0..count {
         let name = read_cp_utf8(bytes, ix, pool).map_err(|e| err!(e, "name of entry {}", i))?;
-        if !is_unqualified_name(&name, false, false) {
+        /*if !is_unqualified_name(&name, false, false) {
             fail!("Invalid unqualified name for entry {}", i);
-        }
+        }*/
         let descriptor =
             read_cp_utf8(bytes, ix, pool).map_err(|e| err!(e, "descriptor of entry {}", i))?;
-        if !is_field_descriptor(&descriptor) {
+        /*if !is_field_descriptor(&descriptor) {
             fail!("Invalid descriptor for entry {}", i);
-        }
+        }*/
         let attributes =
             read_attributes(bytes, ix, pool, opts).map_err(|e| err!(e, "entry {}", i))?;
         components.push(RecordComponentEntry {
@@ -1058,33 +1073,33 @@ pub(crate) fn read_attributes<'a>(
                 *ix
             );
         }
-        let data = match name.deref() {
-            "ConstantValue" => {
+        let data: Option<AttributeData> = match name.deref() {
+            /*"ConstantValue" => {
                 ensure_length(length, 2).map_err(|e| err!(e, "ConstantValue attribute {}", i))?;
                 AttributeData::ConstantValue(
                     read_cp_literalconstant(bytes, ix, pool)
                         .map_err(|e| err!(e, "value field of ConstantValue attribute {}", i))?,
                 )
-            }
+            }*/
             "Code" => {
                 let code_data = read_code_data(bytes, ix, pool, opts)
                     .map_err(|e| err!(e, "Code attribute {}", i))?;
-                AttributeData::Code(code_data)
+                Some(AttributeData::Code(code_data))
             }
-            "StackMapTable" => {
+            /*"StackMapTable" => {
                 let stackmaptable_data = read_stackmaptable_data(bytes, ix, pool)
                     .map_err(|e| err!(e, "StackMapTable attribute {}", i))?;
                 AttributeData::StackMapTable(stackmaptable_data)
-            }
+            }*/
             "Exceptions" => {
                 let exceptions_data = read_exceptions_data(bytes, ix, pool)
                     .map_err(|e| err!(e, "Exceptions attribute {}", i))?;
-                AttributeData::Exceptions(exceptions_data)
+                Some(AttributeData::Exceptions(exceptions_data))
             }
             "InnerClasses" => {
                 let innerclasses_data = read_innerclasses_data(bytes, ix, pool)
                     .map_err(|e| err!(e, "InnerClasses attribute {}", i))?;
-                AttributeData::InnerClasses(innerclasses_data)
+                Some(AttributeData::InnerClasses(innerclasses_data))
             }
             "EnclosingMethod" => {
                 ensure_length(length, 4).map_err(|e| err!(e, "EnclosingMethod attribute {}", i))?;
@@ -1092,21 +1107,21 @@ pub(crate) fn read_attributes<'a>(
                     .map_err(|e| err!(e, "class info of EnclosingMethod attribute {}", i))?;
                 let method = read_cp_nameandtype_opt(bytes, ix, pool)
                     .map_err(|e| err!(e, "method info of EnclosingMethod attribute {}", i))?;
-                AttributeData::EnclosingMethod { class_name, method }
+                Some(AttributeData::EnclosingMethod { class_name, method })
             }
             "Synthetic" => {
                 ensure_length(length, 0).map_err(|e| err!(e, "Synthetic attribute {}", i))?;
-                AttributeData::Synthetic
+                Some(AttributeData::Synthetic)
             }
             "Signature" => {
                 ensure_length(length, 2).map_err(|e| err!(e, "Signature attribute {}", i))?;
                 // TODO: validate signature
-                AttributeData::Signature(
+                Some(AttributeData::Signature(
                     read_cp_utf8(bytes, ix, pool)
                         .map_err(|e| err!(e, "signature field of Signature attribute {}", i))?,
-                )
+                ))
             }
-            "SourceFile" => {
+            /*"SourceFile" => {
                 ensure_length(length, 2).map_err(|e| err!(e, "SourceFile attribute {}", i))?;
                 AttributeData::SourceFile(
                     read_cp_utf8(bytes, ix, pool)
@@ -1219,16 +1234,20 @@ pub(crate) fn read_attributes<'a>(
                 let record_data = read_record_data(bytes, ix, pool, opts)
                     .map_err(|e| err!(e, "Record attribute {}", i))?;
                 AttributeData::Record(record_data)
-            }
+            }*/
             _ => {
                 *ix += length;
-                AttributeData::Other(&bytes[*ix - length..*ix])
+                // AttributeData::Other(&bytes[*ix - length..*ix])
+                Option::None
             }
         };
         if expected_end_ix != *ix {
             fail!("Length mismatch when reading attribute {}", i);
         }
-        attributes.push(AttributeInfo { name, data });
+
+        if let Some(data) = data {
+            attributes.push(AttributeInfo { name, data });
+        }
     }
     Ok(attributes)
 }

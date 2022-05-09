@@ -206,6 +206,7 @@ impl<'a> ConstantPoolEntry<'a> {
         }
     }
 
+    #[allow(dead_code)]
     fn validate(&self, major_version: u16) -> Result<(), ParseError> {
         match self {
             ConstantPoolEntry::ClassInfo(x) => {
@@ -295,6 +296,7 @@ impl<'a> ConstantPoolEntry<'a> {
     /// Returns &str if self if Utf8. Returns parse error otherwise.
     /// The parse error will have a special message if self is Utf8Bytes
     /// because such an odd case might be difficult to debug otherwise.
+    #[allow(dead_code)]
     fn str(&self) -> Result<&str, ParseError> {
         match self {
             ConstantPoolEntry::Utf8(x) => Ok(x),
@@ -305,6 +307,7 @@ impl<'a> ConstantPoolEntry<'a> {
         }
     }
 
+    #[allow(dead_code)]
     fn validate_classinfo_name(&self) -> Result<(), ParseError> {
         let x = self.str()?;
         // Per 4.4.1, classinfo names are allowed to be array descriptors too. This happens in the java 16 modules file.
@@ -315,6 +318,7 @@ impl<'a> ConstantPoolEntry<'a> {
         }
     }
 
+    #[allow(dead_code)]
     fn validate_binary_name(&self) -> Result<(), ParseError> {
         if is_binary_name(self.str()?) {
             Ok(())
@@ -323,6 +327,7 @@ impl<'a> ConstantPoolEntry<'a> {
         }
     }
 
+    #[allow(dead_code)]
     fn validate_unqualified_name(&self) -> Result<(), ParseError> {
         if is_unqualified_name(self.str()?, true, false) {
             Ok(())
@@ -331,6 +336,7 @@ impl<'a> ConstantPoolEntry<'a> {
         }
     }
 
+    #[allow(dead_code)]
     fn validate_module_name(&self) -> Result<(), ParseError> {
         if is_module_name(self.str()?) {
             Ok(())
@@ -339,6 +345,7 @@ impl<'a> ConstantPoolEntry<'a> {
         }
     }
 
+    #[allow(dead_code)]
     fn validate_field_descriptor(&self) -> Result<(), ParseError> {
         match self {
             ConstantPoolEntry::NameAndType(_, y) => {
@@ -352,6 +359,7 @@ impl<'a> ConstantPoolEntry<'a> {
         }
     }
 
+    #[allow(dead_code)]
     fn validate_method_descriptor(&self) -> Result<(), ParseError> {
         match self {
             ConstantPoolEntry::NameAndType(_, y) => y.borrow().get().validate_method_descriptor(),
@@ -608,6 +616,7 @@ fn resolve_constant_pool(constant_pool: &[Rc<ConstantPoolEntry>]) -> Result<(), 
     Ok(())
 }
 
+#[allow(dead_code)]
 fn validate_constant_pool(
     constant_pool: &[Rc<ConstantPoolEntry>],
     major_version: u16,
@@ -665,7 +674,7 @@ pub(crate) fn read_constant_pool<'a>(
         }
     }
     resolve_constant_pool(&constant_pool)?;
-    validate_constant_pool(&constant_pool, major_version)?;
+    //validate_constant_pool(&constant_pool, major_version)?;
     Ok(constant_pool)
 }
 
@@ -790,6 +799,7 @@ pub enum LiteralConstant<'a> {
     StringBytes(&'a [u8]),
 }
 
+#[allow(dead_code)]
 pub(crate) fn read_cp_literalconstant<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -806,6 +816,7 @@ pub(crate) fn read_cp_literalconstant<'a>(
     }
 }
 
+#[allow(dead_code)]
 pub(crate) fn read_cp_integer<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -818,6 +829,7 @@ pub(crate) fn read_cp_integer<'a>(
     }
 }
 
+#[allow(dead_code)]
 pub(crate) fn read_cp_float<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -830,6 +842,7 @@ pub(crate) fn read_cp_float<'a>(
     }
 }
 
+#[allow(dead_code)]
 pub(crate) fn read_cp_long<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -842,6 +855,7 @@ pub(crate) fn read_cp_long<'a>(
     }
 }
 
+#[allow(dead_code)]
 pub(crate) fn read_cp_double<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -995,6 +1009,7 @@ fn make_method_handle<'a>(
     })
 }
 
+#[allow(dead_code)]
 pub(crate) fn read_cp_methodhandle<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
@@ -1015,6 +1030,7 @@ pub enum BootstrapArgument<'a> {
     MethodType(Cow<'a, str>),
 }
 
+#[allow(dead_code)]
 pub(crate) fn read_cp_bootstrap_argument<'a>(
     bytes: &'a [u8],
     ix: &mut usize,
